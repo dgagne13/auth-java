@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://api.bluetarp.com/ns/1.0"
+           xmlns:tns="http://api.bluetarp.com/ns/1.0"
+           elementFormDefault="qualified">
+  <xs:complexType name="BlueTarpAuthorization">
+    <xs:choice>
+      <xs:element name="authorization-request" type="tns:AuthorizationRequest"/>
+      <xs:element name="authorization-response" type="tns:AuthorizationResponse"/>
+      <xs:element name="customer-response" type="tns:CustomerResponse"/>
+      <xs:element name="transaction-response" type="tns:TransactionResponse"/>
+    </xs:choice>
+  </xs:complexType>
+  <xs:complexType name="AuthorizationRequest">
+    <xs:sequence>
+      <xs:element name="merchant-number" type="xs:long"/>
+      <xs:element name="client-id" type="xs:string"/>
+      <xs:element name="client-username" type="xs:string" minOccurs="0"/>
+      <xs:element name="transaction-id" type="xs:string"/>
+      <xs:choice>
+        <xs:element name="purchaser-with-token" type="tns:PurchaserWithToken"/>
+        <xs:element name="purchaser" type="tns:PurchaserWithCard"/>
+      </xs:choice>
+      <xs:choice>
+        <xs:element name="sale" type="tns:Sale"/>
+        <xs:element name="credit" type="tns:Credit"/>
+        <xs:element name="deposit-hold" type="tns:DepositHold"/>
+        <xs:element name="deposit-collect" type="tns:DepositCollect"/>
+        <xs:element name="void" type="tns:Void"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="AuthorizationResponse">
+    <xs:sequence>
+      <xs:element name="code">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]{2}"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="message">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="255"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="transaction-id" type="xs:string"/>
+      <xs:element name="auth-seq" type="xs:long"/>
+      <xs:element name="approval-code">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="[0-9]{6}"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="CustomerResponse">
+    <xs:sequence>
+      <xs:element name="customers">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="customer" type="tns:Customer" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="more-pages" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="TransactionResponse">
+    <xs:sequence>
+      <xs:element name="transactions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="transaction" type="tns:Transaction" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Customer">
+    <xs:sequence>
+      <xs:element name="number" type="xs:long"/>
+      <xs:element name="name" type="tns:Name"/>
+      <xs:element name="merchant-identifier" type="xs:string"/>
+      <xs:element name="status" type="tns:Status" minOccurs="0"/>
+      <xs:element name="reason" type="tns:Reason" minOccurs="0"/>
+      <xs:element name="available-credit" type="xs:double" minOccurs="0"/>
+      <xs:element name="credit-limit" type="xs:double" minOccurs="0"/>
+      <xs:element name="address" type="tns:Address"/>
+      <xs:choice>
+        <xs:element name="purchasers">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="purchaser" type="tns:Purchaser" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="purchaser" type="tns:Purchaser"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="Status">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Chargeoff"/>
+      <xs:enumeration value="Closed"/>
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Pre-Chargeoff"/>
+      <xs:enumeration value="Suspended"/>
+      <xs:enumeration value="Temp Stop"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Reason">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Bankruptcy - Both"/>
+      <xs:enumeration value="Bankruptcy - Business"/>
+      <xs:enumeration value="Bankruptcy - Personal"/>
+      <xs:enumeration value="Collections Agency"/>
+      <xs:enumeration value="Contractor Request - Other"/>
+      <xs:enumeration value="Contractor Request - Seasonal"/>
+      <xs:enumeration value="Credit Deterioration"/>
+      <xs:enumeration value="Credit Hold"/>
+      <xs:enumeration value="Credit Review Required"/>
+      <xs:enumeration value="De-Implementation of Merchant"/>
+      <xs:enumeration value="Dormant"/>
+      <xs:enumeration value="Enrolled"/>
+      <xs:enumeration value="Inactivity"/>
+      <xs:enumeration value="Internal Recovery"/>
+      <xs:enumeration value="Late Stage Recovery"/>
+      <xs:enumeration value="Legal"/>
+      <xs:enumeration value="Purchasing"/>
+      <xs:enumeration value="Testing"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="Transaction">
+    <xs:sequence>
+      <xs:element name="auth-seq" type="xs:long"/>
+      <xs:element name="customer" type="tns:Customer"/>
+      <xs:element name="job-code" type="xs:string"/>
+      <xs:element name="invoice" type="xs:string"/>
+      <xs:element name="original-invoice" type="xs:string"/>
+      <xs:element name="amount" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Sale">
+    <xs:sequence>
+      <xs:element name="amount" type="xs:decimal"/>
+      <xs:element name="job-code" type="tns:JobCode" minOccurs="0"/>
+      <xs:element name="invoice" type="tns:Invoice" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Credit">
+    <xs:sequence>
+      <xs:element name="amount" type="xs:decimal"/>
+      <xs:element name="job-code" type="tns:JobCode" minOccurs="0"/>
+      <xs:element name="invoice" type="tns:Invoice" minOccurs="0"/>
+      <xs:element name="original-invoice" type="tns:Invoice" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DepositHold">
+    <xs:sequence>
+      <xs:element name="amount" type="xs:decimal"/>
+      <xs:element name="job-code" type="tns:JobCode" minOccurs="0"/>
+      <xs:element name="invoice" type="tns:Invoice" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="DepositCollect">
+    <xs:sequence>
+      <xs:element name="amount" type="xs:decimal"/>
+      <xs:element name="auth-seq" type="xs:long"/>
+      <xs:element name="job-code" type="tns:JobCode" minOccurs="0"/>
+      <xs:element name="invoice" type="tns:Invoice" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Void">
+    <xs:sequence>
+      <xs:element name="auth-seq" type="xs:long"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Purchaser">
+    <xs:sequence>
+      <xs:element name="last4" type="xs:long"/>
+      <xs:element name="name" type="tns:Name"/>
+      <xs:element name="token" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PurchaserWithToken">
+    <xs:sequence>
+      <xs:element name="token">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="30"/>
+            <xs:minLength value="30"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="PurchaserWithCard">
+    <xs:sequence>
+      <xs:element name="number" type="xs:string"/>
+      <xs:element name="exp-date" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value="([0|1]{1}\d{1}/?\d{2})|"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="security-code" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="10"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="id-verified" type="xs:boolean" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="Address">
+    <xs:sequence>
+      <xs:element name="line1">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="50"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="line2">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="50"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="city">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="50"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="state">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="2"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+      <xs:element name="zip">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:maxLength value="10"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="JobCode">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Invoice">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Name">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="bluetarp-authorization" type="tns:BlueTarpAuthorization"/>
+</xs:schema>
